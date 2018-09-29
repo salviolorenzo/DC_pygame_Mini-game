@@ -73,20 +73,17 @@ class Player(pygame.sprite.Sprite):
             self.image = ship_images[7] 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self,direction, x, y):
+    def __init__(self):
         super(Enemy, self).__init__()
         self.width = 30
         self.height = 30
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill((blue))
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
+        self.x = 0
+        self.y = 0
         self.vel = 3
-        self.direction = direction
-
-        pygame.draw.rect(self.image, blue, [self.x,self.y, 30,30])
-
+    
     def chase(self):
         # find normalized direction vector (dx, dy) between enemy and player
         dx, dy = self.x - hero.x, self.y - hero.y
@@ -94,7 +91,55 @@ class Enemy(pygame.sprite.Sprite):
         dx, dy = dx / dist, dy / dist
         # move along this normalized vector towards the player at current speed
         self.x += -dx * self.vel
-        self.y += -dy * self.vel   
+        self.y += -dy * self.vel  
+
+class Enemy_left(Enemy):
+    def __init__(self):
+        super(Enemy_left, self).__init__()
+        self.width = 30
+        self.height = 30
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((blue))
+        self.rect = self.image.get_rect()
+        self.x = 0
+        self.y = randint(0,screen_height-self.height)
+        self.vel = 3
+
+class Enemy_top(Enemy):
+    def __init__(self):
+        super(Enemy_top, self).__init__()
+        self.width = 30
+        self.height = 30
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((blue))
+        self.rect = self.image.get_rect()
+        self.x = randint(0,screen_width-self.width)
+        self.y = 0
+        self.vel = 3
+
+class Enemy_right(Enemy):
+    def __init__(self):
+        super(Enemy_right, self).__init__()
+        self.width = 30
+        self.height = 30
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((blue))
+        self.rect = self.image.get_rect()
+        self.x = screen_width-self.width
+        self.y = randint(0, screen_height- self.height)
+        self.vel = 3
+
+class Enemy_bottom(Enemy):
+    def __init__(self):
+        super(Enemy_bottom, self).__init__()
+        self.width = 30
+        self.height = 30
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill((blue))
+        self.rect = self.image.get_rect()
+        self.x = randint(0,screen_width-self.width)
+        self.y = screen_height-self.height
+        self.vel = 3 
     
 
 end = False
@@ -102,37 +147,38 @@ clock = pygame.time.Clock()
 #generate player character
 hero = Player(screen_width/2, screen_height*.45)
 
-#generate enemies on all sides
-enemy_left = Enemy('right', 0, randint(0,screen_height-30))
-enemy_right = Enemy('left', screen_width-enemy_left.width, randint(0, screen_height- enemy_left.height))
-enemy_top = Enemy('down', randint(0,screen_width-enemy_left.width), 0)
-enemy_bottom = Enemy('up', randint(0,screen_width-enemy_left.width), screen_height-enemy_top.height)
+#list of enemy classes
+enemy_list = [Enemy_top(),Enemy_right(), Enemy_bottom(), Enemy_left()]
 
 #sprite groups
 enemies = pygame.sprite.Group()
-enemies.add(enemy_bottom, enemy_left, enemy_right, enemy_top)
 all_sprites = pygame.sprite.Group()
-all_sprites.add(hero, enemy_bottom, enemy_left, enemy_right, enemy_top)
+all_sprites.add(hero)
 
 #blit all sprites to screen
 def blit_all():
     for character in all_sprites:
         screen.blit(character.image, (character.x, character.y))
 
+loop_count = 0
 while not end:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             end = True
             quit()
-            
+ 
     
+    for i in range(len(enemy_list)):
+        new_enemy = enemy_list[i]
+        new_enemy.chase()
+        all_sprites.add(new_enemy)
+        enemies.add(new_enemy)
+
     screen.fill(black)
-    enemy_bottom.chase()
-    enemy_left.chase()
-    enemy_right.chase()
-    enemy_top.chase()
     hero.update()
     blit_all()
 
     pygame.display.update()
     clock.tick(60)
+    loop_count += 1
+    
