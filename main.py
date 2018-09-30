@@ -53,6 +53,7 @@ def blit_all():
     for character in all_sprites:
         screen.blit(character.image, (character.x, character.y))
 
+#intro screen
 def opening_screen():
     begin = True
     while begin:
@@ -67,6 +68,7 @@ def opening_screen():
                 if event.key == pygame.K_SPACE:
                     begin = False
 
+#game over screen 
 def end_screen():
     end =True
     while end:
@@ -92,38 +94,43 @@ def end_screen():
             elif event.type == pygame.QUIT:
                 pygame.quit()
 
-
+#timer in top left
 def game_timer(time):
     seconds = time/1000
     timer = font_Obj2.render("Time  %d"%(seconds), 1, (white))
     screen.blit(timer, (10,0))
     pygame.display.update()
 
+#lives of player in top right
 def display_lives(player):
     lives = player.lives
     display = font_Obj2.render("Lives  %d"%(lives), 1, (white))
     screen.blit(display, (screen_width-125,0))
     pygame.display.update()
 
+#player score top right
 def display_score(player):
     score = player.score
     display = font_Obj2.render("Score  %d"%(score), 1, (white))
     screen.blit(display, (screen_width-125,30))
     pygame.display.update()
 
+#function to import and play game music
 def music():
     pygame.mixer.init()
     pygame.mixer.music.load('extras/soundtrack.mp3')
     pygame.mixer.music.play(-1)
 
+#initialize game character
 hero = Player(screen_width*.475, screen_height*.7)
+
+#main game loop
 def game_loop():
     music()
     pygame.display.update()
     background = Background('images/background.gif', [0,0])
     end = False
     clock = pygame.time.Clock()
-    #generate player character
     
 
     enemy_list = []
@@ -174,6 +181,11 @@ def game_loop():
 
         if hero.lives == 0:
             hero.kill()
+            for enemy in enemy_list:
+                enemy.kill()
+            for pickup in pickups:
+                pickup.kill()
+
             end = True
 
         screen.fill((white))
