@@ -1,7 +1,5 @@
 import pygame
-import sys
 from random import randint
-from time import sleep
 import math
 
 pygame.init()
@@ -36,8 +34,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self,x,y):
         pygame.sprite.Sprite.__init__(self)
         self.height = 30
-        self.width = 30
-        self.image = pygame.Surface([self.width, self.height])
+        self.width = 40
+        self.image = pygame.Surface((self.width, self.height))
         self.image = ship_images[0]
         self.rect = self.image.get_rect()
         self.x = x
@@ -95,7 +93,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = randint(0, screen_width-self.width)
         self.y = -30
-        self.vel = 3
+        self.vel = randint(3,4)
     
     def chase(self, player):
         # find normalized direction vector (dx, dy) between enemy and player

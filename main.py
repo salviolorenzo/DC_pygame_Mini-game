@@ -1,12 +1,11 @@
 import pygame
-import sys
 from random import randint
-from time import sleep
 import math
 from classes import Player, Enemy, Pickup, Boost, Background
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
 font_path = "extras/arcadeclassic.ttf"
 font_size = 50
 font_Obj = pygame.font.Font(font_path, font_size)
@@ -35,18 +34,15 @@ blue = (0,0,255)
 enemies = pygame.sprite.Group()
 pickups = pygame.sprite.Group()
 hero_group = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
-boost_group = pygame.sprite.Group() 
+all_sprites = pygame.sprite.Group() 
 
 #enemy event
 ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 3000)
+pygame.time.set_timer(ADDENEMY, randint(1000, 3000))
+
 #pick up event
 add_object = pygame.USEREVENT + 2
 pygame.time.set_timer(add_object, 5000)
-add_boost = pygame.USEREVENT + 3
-pygame.time.set_timer(add_boost, 15000)
-
 
 #blit all sprites to screen
 def blit_all():
@@ -60,7 +56,7 @@ def opening_screen():
         screen.fill(white)
         welcome = font_Obj.render("DEEP     SPACE", 1, (black))
         screen.blit(welcome, (screen_width*.325, screen_height*.45))
-        play = font_Obj2.render("PRESS  SPACE   TO  PLAY", 2, (black))
+        play = font_Obj2.render("PRESS  SPACE   TO  PLAY", 2, (black))     
         screen.blit(play, (screen_width*.315, screen_height*.75))
         pygame.display.update()
         for event in pygame.event.get():
@@ -70,6 +66,7 @@ def opening_screen():
 
 #game over screen 
 def end_screen():
+    pygame.mixer.Sound('extras/thats-okay-2.wav').play(0)
     end =True
     while end:
         pygame.mixer.music.pause()
@@ -117,7 +114,6 @@ def display_score(player):
 
 #function to import and play game music
 def music():
-    pygame.mixer.init()
     pygame.mixer.music.load('extras/soundtrack.mp3')
     pygame.mixer.music.play(-1)
 
@@ -127,12 +123,9 @@ hero = Player(screen_width*.475, screen_height*.7)
 #main game loop
 def game_loop():
     music()
-    pygame.display.update()
     background = Background('images/background.gif', [0,0])
     end = False
     clock = pygame.time.Clock()
-    
-
     enemy_list = []
     hero_group.add(hero)
     all_sprites.add(hero)
@@ -160,13 +153,9 @@ def game_loop():
                 pickups.add(new_pickup)
                 all_sprites.add(new_pickup)
 
-            #if event.type == add_boost:
-            #    boost = Boost()
-            #    boost_group.add(boost)
-            #    all_sprites.add(boost)
-
         if pygame.sprite.spritecollide(hero, enemies, False):
             hero.lives -= 1
+            pygame.mixer.Sound('extras/SFX_Powerup_49.wav').play(0,0,100)
 
         for enemy in enemy_list:
             if pygame.sprite.spritecollide(enemy, hero_group, False):
@@ -175,17 +164,13 @@ def game_loop():
         if pygame.sprite.spritecollide(hero, pickups, dokill = True):
             hero.pickup_count += 1
             hero.score += 1
+            pygame.mixer.Sound('extras/SFX_Powerup_01.wav').play(0)
             if hero.pickup_count == 5:
                 hero.lives += 1
                 hero.pickup_count = 0
 
         if hero.lives == 0:
             hero.kill()
-            for enemy in enemy_list:
-                enemy.kill()
-            for pickup in pickups:
-                pickup.kill()
-
             end = True
 
         screen.fill((white))
